@@ -239,7 +239,6 @@ CREATE TABLE peminjaman (
 
 Repository GitHub:
 [https://github.com/ranyrizqina62/perpustakaan_web](https://github.com/ranyrizqina62/perpustakaan_web)
-
 Dokumentasi API:
 [http://localhost/perpustakaan/api/](http://localhost/perpustakaan/api/)
 
