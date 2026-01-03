@@ -1,0 +1,49 @@
+.header{
+  height:60px;
+  background:#3f8efc;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:1100;
+}
+
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.header-center{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.header-center input{
+  padding:7px 12px;
+  border-radius:8px;
+  border:none;
+}
+
+.tanggal{
+  font-size:13px;
+  opacity:.9;
+}
+
+.toggle-btn{
+  background:none;
+  border:none;
+  font-size:22px;
+  color:#fff;
+  cursor:pointer;
+}
+
+.header-right a{
+  color:#fff;
+  text-decoration:none;
+  margin-left:10px;
+}

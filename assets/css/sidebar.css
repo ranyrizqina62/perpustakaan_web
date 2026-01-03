@@ -1,0 +1,114 @@
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:'Segoe UI', Arial;
+  background:#f4f6f9;
+}
+
+/* ================= HEADER ================= */
+.header{
+  height:60px;
+  background:#2563eb;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:3000; /* PALING ATAS */
+}
+
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.toggle-btn{
+  background:none;
+  border:none;
+  font-size:22px;
+  color:#fff;
+  cursor:pointer;
+}
+
+/* SEARCH */
+.search-box input{
+  padding:6px 12px;
+  border-radius:8px;
+  border:none;
+  outline:none;
+  width:180px;
+}
+
+/* HEADER RIGHT */
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  font-size:14px;
+}
+
+.header-right a{
+  color:#fff;
+  text-decoration:none;
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar{
+  width:230px;
+  height:calc(100vh - 60px);
+  background:linear-gradient(180deg,#1e293b,#0f172a);
+  position:fixed;
+  top:60px;
+  left:0;
+  color:#fff;
+  transition:.3s ease;
+  z-index:2000;
+}
+
+.sidebar.hide{
+  transform:translateX(-100%);
+}
+
+.sidebar-header{
+  padding:20px;
+  font-weight:bold;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+.menu{
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+
+.menu li a{
+  display:block;
+  padding:14px 22px;
+  color:#cbd5e1;
+  text-decoration:none;
+  transition:.3s;
+}
+
+.menu li a:hover{
+  background:#3b82f6;
+  color:#fff;
+  padding-left:32px;
+}
+
+/* ================= MAIN ================= */
+.main{
+  margin-left:230px;
+  margin-top:60px;
+  padding:25px;
+  transition:.3s ease;
+}
+
+.main.full{
+  margin-left:0;
+}

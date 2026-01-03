@@ -1,0 +1,210 @@
+<?php
+session_start();
+include "../../inc/koneksi.php";
+
+/* PROTEKSI LOGIN */
+if (!isset($_SESSION['ses_username']) || $_SESSION['ses_level'] != 'Anggota') {
+    header("Location: ../../login.php");
+    exit;
+}
+
+$nama = $_SESSION['ses_nama'];
+$id_user = $_SESSION['ses_id'];
+
+/* SEARCH */
+$cari = isset($_GET['q']) ? mysqli_real_escape_string($koneksi, $_GET['q']) : "";
+
+/* PROSES PINJAM */
+if (isset($_POST['pinjam'])) {
+    $id_buku = (int)$_POST['id_buku'];
+
+    // Cek apakah user sudah pinjam buku ini
+    $cek_user = mysqli_query($koneksi, "
+        SELECT id_peminjaman 
+        FROM peminjaman 
+        WHERE id_anggota='$id_user' AND id_buku='$id_buku' AND status='dipinjam'
+    ");
+
+    if (mysqli_num_rows($cek_user) > 0) {
+        $pesan = "error_sudah";
+    } else {
+        // Cek apakah buku masih tersedia
+        $cek = mysqli_query($koneksi, "
+            SELECT id_peminjaman 
+            FROM peminjaman 
+            WHERE id_buku='$id_buku' AND status='dipinjam'
+        ");
+
+        if (mysqli_num_rows($cek) == 0) {
+            $tgl_pinjam = date('Y-m-d');
+            $tgl_kembali = date('Y-m-d', strtotime('+7 days'));
+
+            mysqli_query($koneksi, "
+                INSERT INTO peminjaman 
+                (id_anggota, id_buku, tanggal_pinjam, tanggal_kembali, status, denda)
+                VALUES 
+                ('$id_user', '$id_buku', '$tgl_pinjam', '$tgl_kembali', 'dipinjam', 0)
+            ");
+
+            mysqli_query($koneksi, "
+                UPDATE buku SET status='dipinjam' WHERE id_buku='$id_buku'
+            ");
+
+            header("Location: katalog.php?pinjam=sukses");
+            exit;
+        } else {
+            $pesan = "error_dipinjam";
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Katalog Buku</title>
+    <link rel="stylesheet" href="../../assets/css/sidebar.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+        }
+        .main-content {
+            margin-left: 230px;
+            padding: 20px;
+        }
+        .page-header {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .filter-section {
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .buku-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .buku-item {
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,.1);
+        }
+        .buku-cover {
+            height: 260px;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .buku-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .buku-info {
+            padding: 15px;
+            text-align: center;
+        }
+        .btn-pinjam {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn-pinjam-tersedia {
+            background: #28a745;
+            color: #fff;
+        }
+        .btn-pinjam-disabled {
+            background: #ccc;
+            color: #666;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .alert-success {
+            background: #d4edda;
+        }
+        .alert-error {
+            background: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+
+<?php include "../../inc/sidebar.php"; ?>
+
+<div class="main-content">
+    <div class="page-header">
+        <h2>📚 Katalog Buku</h2>
+        <p>Pinjam buku favoritmu</p>
+    </div>
+
+    <?php if (isset($_GET['pinjam'])) { ?>
+        <div class="alert alert-success">Buku berhasil dipinjam</div>
+    <?php } ?>
+
+    <?php if (isset($pesan) && $pesan == 'error_dipinjam') { ?>
+        <div class="alert alert-error">Buku sedang dipinjam</div>
+    <?php } ?>
+
+    <?php if (isset($pesan) && $pesan == 'error_sudah') { ?>
+        <div class="alert alert-error">Kamu sudah meminjam buku ini</div>
+    <?php } ?>
+
+    <div class="filter-section">
+        <form method="get">
+            <input type="text" name="q" placeholder="Cari buku..." value="<?= htmlspecialchars($cari) ?>">
+            <button type="submit">Cari</button>
+        </form>
+    </div>
+
+    <div class="buku-grid">
+        <?php
+        $sql = "SELECT * FROM buku WHERE judul LIKE '%$cari%' OR pengarang LIKE '%$cari%'";
+        $query = mysqli_query($koneksi, $sql);
+
+        while ($buku = mysqli_fetch_assoc($query)) {
+            $cek = mysqli_query($koneksi, "
+                SELECT id_peminjaman FROM peminjaman 
+                WHERE id_buku='{$buku['id_buku']}' AND status='dipinjam'
+            ");
+            $dipinjam = mysqli_num_rows($cek) > 0;
+        ?>
+        <div class="buku-item">
+            <div class="buku-cover">
+                <?php if ($buku['cover']) { ?>
+                    <img src="../../assets/cover/<?= $buku['cover'] ?>">
+                <?php } else { echo "📖"; } ?>
+            </div>
+            <div class="buku-info">
+                <h4><?= htmlspecialchars($buku['judul']) ?></h4>
+                <small><?= htmlspecialchars($buku['pengarang']) ?></small><br><br>
+
+                <form method="post">
+                    <input type="hidden" name="id_buku" value="<?= $buku['id_buku'] ?>">
+                    <button name="pinjam"
+                        class="btn-pinjam <?= $dipinjam ? 'btn-pinjam-disabled' : 'btn-pinjam-tersedia' ?>"
+                        <?= $dipinjam ? 'disabled' : '' ?>>
+                        <?= $dipinjam ? 'Tidak tersedia' : 'Pinjam' ?>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <?php } ?>
+    </div>
+</div>
+
+</body>
+</html>

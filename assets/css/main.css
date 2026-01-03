@@ -1,0 +1,32 @@
+body{margin:0;font-family:'Segoe UI',Arial;background:#f4f6f9}
+
+.header{
+  height:60px;
+  background:#3f8efc;
+  color:#fff;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 20px;
+}
+
+.toggle-btn{
+  font-size:22px;
+  background:none;
+  border:none;
+  color:#fff;
+  cursor:pointer;
+}
+
+.wrapper{display:flex}
+
+.main{
+  margin-left:230px;
+  padding:25px;
+  width:100%;
+  transition:.3s;
+}
+
+.main.full{
+  margin-left:0;
+}
